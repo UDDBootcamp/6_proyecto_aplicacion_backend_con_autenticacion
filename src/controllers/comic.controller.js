@@ -58,3 +58,5 @@ exports.deletedComicById = async (req, res) => {
       .json({ message: "Error al obtener los comics", error: error.message });
   }
 };
+
+// readone/:id

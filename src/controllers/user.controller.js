@@ -9,6 +9,7 @@ exports.createUser = async (req, res) => {
     let foundUser = await User.findOne({ email });
     if (foundUser)
       return res.status(400).json({ message: "El usuario ya existe" });
+    // encriptar la contraseña
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
     const newUser = await User.create({
@@ -85,3 +86,6 @@ exports.getAllUsers = async (req, res) => {
       .json({ message: "Error al obtener los usuarios", error: error.message });
   }
 };
+
+// verifytoken
+// update
