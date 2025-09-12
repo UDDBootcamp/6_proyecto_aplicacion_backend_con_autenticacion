@@ -4,7 +4,7 @@ const connectDB = require("./config/db");
 const cors = require("cors");
 
 const userRoutes = require("./routes/user.routes");
-const comicRoutes = require("./routes/comic.routes");
+const productRoutes = require("./routes/product.routes");
 
 const port = process.env.PORT || 5000;
 
@@ -19,7 +19,7 @@ app.use(express.json()); // Middleware para parsear JSON
 
 // Endpoints
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/comics", comicRoutes);
+app.use("/api/v1/product", productRoutes);
 
 app.listen(port, () => {
   try {

@@ -12,6 +12,7 @@ exports.createUser = async (req, res) => {
     // encriptar la contraseña
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
+    // fin encriptar la contraseña
     const newUser = await User.create({
       username,
       email,
@@ -50,7 +51,7 @@ exports.loginUser = async (req, res) => {
     jwt.sign(
       payLoad,
       process.env.SECRET,
-      { expiresIn: 3600 },
+      { expiresIn: 6000 },
       (error, token) => {
         if (error) throw error;
         return res.status(200).json({ token });
@@ -87,5 +88,28 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// verifytoken
-// update
+exports.updateUserById = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    // encriptar la contraseña
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+    // fin encriptar la contraseña
+    const updateUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        username,
+        email,
+        password: hashedPassword,
+      },
+      { new: true, runValidators: true }
+    );
+    if (!updateUser)
+      return res.status(404).json({ message: "No se encontro el usuario" });
+    return res.status(200).json({ datos: updateUser });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al obtener al usuario", error: error.message });
+  }
+};

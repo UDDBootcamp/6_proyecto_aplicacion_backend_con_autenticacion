@@ -7,12 +7,13 @@ const {
   loginUser,
   verifyUser,
   getAllUsers,
+  updateUserById,
 } = require("../controllers/user.controller");
 
-userRouter.post("/create", createUser);
+userRouter.post("/register", createUser);
 userRouter.post("/login", loginUser);
-userRouter.get("/verify-user", auth, verifyUser);
-userRouter.get("/", getAllUsers);
-
+userRouter.get("/verifytoken", auth, verifyUser);
+userRouter.get("/allUsers", getAllUsers);
+userRouter.put("/update/:id", updateUserById);
 
 module.exports = userRouter;
