@@ -9,6 +9,9 @@ const comicSchema = mongosee.Schema(
       type: Number,
       required: true,
     },
+    description: {
+      type: String,
+    },
   },
   {
     timestamps: true,
