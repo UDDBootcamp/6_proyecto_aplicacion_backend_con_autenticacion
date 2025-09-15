@@ -2,6 +2,41 @@ const User = require("../models/User");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+// Registrar usuario
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Crear un nuevo usuario
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "marco_dev"
+ *               email:
+ *                 type: string
+ *                 example: "marco@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "12345678"
+ *     responses:
+ *       201:
+ *         description: Usuario creado exitosamente
+ *       400:
+ *         description: El usuario ya existe o datos inválidos
+ *       500:
+ *         description: Error interno del servidor
+ */
 exports.createUser = async (req, res) => {
   const { username, email, password } = req.body;
   // Encriptar la contraseña
@@ -28,6 +63,37 @@ exports.createUser = async (req, res) => {
   }
 };
 
+// Login usuario
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Autenticar usuario y generar token JWT
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "marco@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "12345678"
+ *     responses:
+ *       200:
+ *         description: Autenticación exitosa
+ *       400:
+ *         description: Usuario no existe o contraseña incorrecta
+ *       500:
+ *         description: Error interno del servidor
+ */
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -51,7 +117,7 @@ exports.loginUser = async (req, res) => {
     jwt.sign(
       payLoad,
       process.env.SECRET,
-      { expiresIn: 6000 },
+      { expiresIn: "60s" },
       (error, token) => {
         if (error) throw error;
         return res.status(200).json({ token });
@@ -64,6 +130,25 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+// Verificar usuario (obtener datos del usuario autenticado)
+/**
+ * @swagger
+ * /users/verifytoken:
+ *   get:
+ *     summary: Verificar usuario autenticado
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Usuario verificado exitosamente
+ *       401:
+ *         description: No autorizado. Token faltante o inválido
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 exports.verifyUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -77,6 +162,19 @@ exports.verifyUser = async (req, res) => {
   }
 };
 
+// Obtener todos los usuarios
+/**
+ * @swagger
+ * /users/allUsers:
+ *   get:
+ *     summary: Obtener todos los usuarios registrados
+ *     tags: [Usuarios]
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios obtenida exitosamente
+ *       500:
+ *         description: Error interno del servidor
+ */
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -88,6 +186,48 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+// Actualizar usuario por ID
+/**
+ * @swagger
+ * /users/update/{id}:
+ *   put:
+ *     summary: Actualizar un usuario por ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del usuario a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "marco_dev"
+ *               email:
+ *                 type: string
+ *                 example: "marco@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "12345678"
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado exitosamente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 exports.updateUserById = async (req, res) => {
   try {
     const { username, email, password } = req.body;
