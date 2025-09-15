@@ -22,13 +22,13 @@ const jwt = require("jsonwebtoken");
  *             properties:
  *               username:
  *                 type: string
- *                 example: "marco_dev"
+ *                 example: "john doe"
  *               email:
  *                 type: string
- *                 example: "marco@example.com"
+ *                 example: "johndoe@example.com"
  *               password:
  *                 type: string
- *                 example: "12345678"
+ *                 example: "1234"
  *     responses:
  *       201:
  *         description: Usuario creado exitosamente
@@ -69,6 +69,7 @@ exports.createUser = async (req, res) => {
  * /users/login:
  *   post:
  *     summary: Autenticar usuario y generar token JWT
+ *     description: Este endpoint permite autenticar al usuario y generar un token válido por 60 segundos, útil para pruebas temporales.
  *     tags: [Usuarios]
  *     requestBody:
  *       required: true
@@ -213,13 +214,13 @@ exports.getAllUsers = async (req, res) => {
  *             properties:
  *               username:
  *                 type: string
- *                 example: "marco_dev"
+ *                 example: "john doe"
  *               email:
  *                 type: string
- *                 example: "marco@example.com"
+ *                 example: "johndoe@example.com"
  *               password:
  *                 type: string
- *                 example: "12345678"
+ *                 example: "1234"
  *     responses:
  *       200:
  *         description: Usuario actualizado exitosamente
