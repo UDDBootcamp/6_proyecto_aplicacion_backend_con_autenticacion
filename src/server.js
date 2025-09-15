@@ -3,6 +3,8 @@ const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
 
+const { swaggerUi, swaggerSpec } = require("./swagger/swagger");
+
 const userRoutes = require("./routes/user.routes");
 const productRoutes = require("./routes/product.routes");
 
@@ -16,6 +18,8 @@ connectDB();
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Middleware para parsear JSON
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Endpoints
 app.use("/api/v1/users", userRoutes);
