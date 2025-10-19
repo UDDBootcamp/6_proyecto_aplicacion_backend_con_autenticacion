@@ -53,8 +53,6 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
  *         description: Error al obtener los comicsbbb
  */
 exports.createComic = async (req, res) => {
-  console.log("📌 req.body:", req.body); // Ver qué llega desde el cliente
-
   const {
     name,
     price,
@@ -86,14 +84,15 @@ exports.createComic = async (req, res) => {
       images: [img],
       metadata: { qty: Number(qty), isnew: Boolean(isnew) },
     });
-    console.log("✅ Producto Stripe creado:", product.id);
+
 
     const stripePrice = await stripe.prices.create({
-      unit_amount: Math.round(price),
+      unit_amount: ["clp"].includes(currency.toLowerCase())
+        ? price
+        : Math.round(price * 100),
       currency,
       product: product.id,
     });
-    console.log("✅ Precio Stripe creado:", stripePrice.id);
 
     const newComic = await Comic.create({
       idProd: product.id,
@@ -106,7 +105,6 @@ exports.createComic = async (req, res) => {
       isnew: Boolean(isnew),
       currency,
     });
-    console.log("✅ Comic MongoDB creado:", newComic._id);
 
     return res.status(201).json({ datos: newComic });
   } catch (error) {
@@ -137,12 +135,10 @@ exports.getAllComic = async (req, res) => {
     const comics = await Comic.find();
     return res.status(200).json({ comics });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error al obtener los comics bbbh",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error al obtener los comics bbbh",
+      error: error.message,
+    });
   }
 };
 
@@ -247,12 +243,10 @@ exports.updateComicById = async (req, res) => {
       return res.status(404).json({ message: "No se encontro el comic" });
     return res.status(200).json({ datos: updateComics });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error al obtener los comics iiiii",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error al obtener los comics iiiii",
+      error: error.message,
+    });
   }
 };
 
@@ -285,11 +279,9 @@ exports.deletedComicById = async (req, res) => {
       return res.status(404).json({ message: "No se encontro el comic" });
     return res.status(200).json({ message: "Se elimino el comic" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error al obtener los comics oooo",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error al obtener los comics oooo",
+      error: error.message,
+    });
   }
 };
