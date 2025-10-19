@@ -20,6 +20,7 @@ connectDB();
 const allowedOrigins = [
   "https://tu-proyecto-netlify.app",
   "https://otro-proyecto.netlify.app",
+  "https://seven-proyecto-frontend.onrender.com",
   "http://localhost:3000",
   "http://localhost:5173",
 ];
