@@ -86,8 +86,8 @@ exports.createComic = async (req, res) => {
     });
 
     const stripePrice = await stripe.prices.create({
-      unit_amount: 33000,
-      currency: "clp",
+      unit_amount: Math.round(price),
+      currency,
       product: product.id,
     });
 
