@@ -1,4 +1,5 @@
 const Comic = require("../models/Product");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 // Crear Comic
 /**
@@ -17,6 +18,10 @@ const Comic = require("../models/Product");
  *               - name
  *               - price
  *               - description
+ *               - img
+ *               - qty
+ *               - isnew
+ *               - currency
  *             properties:
  *               name:
  *                 type: string
@@ -27,25 +32,88 @@ const Comic = require("../models/Product");
  *               description:
  *                 type: string
  *                 example: "Edición especial con portada variante"
+ *               img:
+ *                 type: string
+ *                 example: "https://upload.wikimedia.org/wikipedia/en/8/87/Batman_DC_Comics.png"
+ *               qty:
+ *                 type: number
+ *                 example: 10
+ *               isnew:
+ *                 type: boolean
+ *                 example: true
+ *               currency:
+ *                 type: string
+ *                 example: clp
  *     responses:
  *       200:
  *         description: Comic creado exitosamente
  *       400:
  *         description: No se pudo crear el comic
  *       500:
- *         description: Error al obtener los comics
+ *         description: Error al obtener los comicsbbb
  */
 exports.createComic = async (req, res) => {
+  console.log("📌 req.body:", req.body); // Ver qué llega desde el cliente
+
+  const {
+    name,
+    price,
+    description,
+    img,
+    qty = 0,
+    isnew = false,
+    currency,
+  } = req.body;
+
+  if (!name || !price || !description || !img || !currency) {
+    console.log("❌ Campos faltantes"); // Este log se verá si falta algo
+    return res.status(400).json({ message: "Faltan campos obligatorios" });
+  }
+
+  console.log("✅ Todos los campos requeridos presentes");
+
+  if (!img.startsWith("http://") && !img.startsWith("https://")) {
+    console.log("❌ URL de imagen inválida"); // Este log se verá si img es inválido
+    return res.status(400).json({ message: "URL de imagen inválida" });
+  }
+
+  console.log("✅ URL de imagen válida");
+
   try {
-    const { name, price, description } = req.body;
-    const newComics = await Comic.create({ name, price, description });
-    if (!newComics)
-      return res.status(400).json({ message: "No se pudo crear el comic" });
-    return res.status(200).json({ datos: newComics });
+    const product = await stripe.products.create({
+      name,
+      description,
+      images: [img],
+      metadata: { qty: Number(qty), isnew: Boolean(isnew) },
+    });
+    console.log("✅ Producto Stripe creado:", product.id);
+
+    const stripePrice = await stripe.prices.create({
+      unit_amount: Math.round(price * 100),
+      currency,
+      product: product.id,
+    });
+    console.log("✅ Precio Stripe creado:", stripePrice.id);
+
+    const newComic = await Comic.create({
+      idProd: product.id,
+      priceID: stripePrice.id,
+      name,
+      price,
+      description,
+      img,
+      qty: Number(qty),
+      isnew: Boolean(isnew),
+      currency,
+    });
+    console.log("✅ Comic MongoDB creado:", newComic._id);
+
+    return res.status(201).json({ datos: newComic });
   } catch (error) {
+    console.error("❌ Error al crear comic:", error);
     return res
       .status(500)
-      .json({ message: "Error al obtener los comics", error: error.message });
+      .json({ message: "Error al crear el cómic", error: error.message });
   }
 };
 
@@ -71,7 +139,10 @@ exports.getAllComic = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error al obtener los comics", error: error.message });
+      .json({
+        message: "Error al obtener los comics bbbh",
+        error: error.message,
+      });
   }
 };
 
@@ -102,8 +173,7 @@ exports.getOneComic = async (req, res) => {
     const productId = req.params.id;
     const comic = await Comic.findById(productId);
 
-    if (!comic)
-      return res.status(404).json({ message: "Comic no encontrado" });
+    if (!comic) return res.status(404).json({ message: "Comic no encontrado" });
 
     return res.status(200).json({ producto: comic });
   } catch (error) {
@@ -144,6 +214,15 @@ exports.getOneComic = async (req, res) => {
  *               description:
  *                 type: string
  *                 example: "Edición especial con portada variante"
+ *               img:
+ *                 type: string
+ *                 example: "https://upload.wikimedia.org/wikipedia/en/8/87/Batman_DC_Comics.png"
+ *               qty:
+ *                 type: number
+ *                 example: 10
+ *               isnew:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
  *         description: Comic actualizado exitosamente
@@ -162,7 +241,7 @@ exports.updateComicById = async (req, res) => {
         price,
         description,
       },
-      { new: true, runValidators: true }
+      { isnew: true, runValidators: true }
     );
     if (!updateComics)
       return res.status(404).json({ message: "No se encontro el comic" });
@@ -170,7 +249,10 @@ exports.updateComicById = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error al obtener los comics", error: error.message });
+      .json({
+        message: "Error al obtener los comics iiiii",
+        error: error.message,
+      });
   }
 };
 
@@ -205,6 +287,9 @@ exports.deletedComicById = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error al obtener los comics", error: error.message });
+      .json({
+        message: "Error al obtener los comics oooo",
+        error: error.message,
+      });
   }
 };
