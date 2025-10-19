@@ -34,6 +34,7 @@ const swaggerDefinition = {
           name: { type: "string" },
           price: { type: "number" },
           description: { type: "string" },
+          isnew: {type: "boolean"}
         },
       },
       User: {

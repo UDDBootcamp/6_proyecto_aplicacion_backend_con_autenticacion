@@ -8,12 +8,14 @@ const {
   verifyUser,
   getAllUsers,
   updateUserById,
+  logout,
 } = require("../controllers/user.controller");
 
 userRouter.post("/register", createUser);
 userRouter.post("/login", loginUser);
 userRouter.get("/verifytoken", auth, verifyUser);
 userRouter.get("/allUsers", getAllUsers);
-userRouter.put("/update/:id", updateUserById);
+userRouter.put("/update/:id", auth, updateUserById);
+userRouter.post("/logout", logout);
 
 module.exports = userRouter;
