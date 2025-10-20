@@ -21,7 +21,10 @@ const cartSchema = mongoose.Schema({
       },
       img: {
         type: String,
-      }
+      },
+      qty: {
+        type: Number,
+      },
     },
   ],
 });
